@@ -1,0 +1,11 @@
+{
+  "name": "achieve-backend",
+  "version": "1.0.0",
+  "description": "achieve api server",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon app"
+  },
+  "author": "kutta97",
+  "license": "ISC"
+}
