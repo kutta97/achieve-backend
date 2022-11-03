@@ -43,5 +43,8 @@ module.exports = class User extends Sequelize.Model {
       as: 'userFriends',
       through: 'UsersFriends',
     });
+    this.belongsToMany(db.Group, {
+      through: 'GroupsUsers',
+    })
   }
 };
