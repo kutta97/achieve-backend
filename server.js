@@ -8,6 +8,7 @@ const cors = require("cors");
 dotenv.config();
 
 const authRouter = require('./routes/auth.routes');
+const overviewRouter = require('./routes/overview.routes');
 const { sequelize } = require('./models');
 const passportConfig = require('./passport');
 
@@ -15,7 +16,8 @@ const app = express();
 passportConfig();
 
 const corsOptions = {
-  origin: "http://localhost:3000"
+  origin: "http://localhost:3000",
+  Credential: true,
 };
 
 app.set('port', process.env.PORT || 8080);
@@ -47,6 +49,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/auth', authRouter);
+app.use('/overview', overviewRouter);
 
 app.use((req, res, next) => {
   const error =  new Error(`${req.method} ${req.url} router not found.`);
