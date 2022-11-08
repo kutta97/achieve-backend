@@ -16,7 +16,7 @@ module.exports = () => {
       }
       const result = await bcrypt.compare(password, exUser.password);
       if (!result) {
-        done(null, false, { message: 'Wrond password' });
+        done(null, false, { message: 'Wrong password' });
       }
       done(null, exUser);
     } catch (error) {
