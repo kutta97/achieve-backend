@@ -13,10 +13,10 @@ router.post('/', verifyToken, async (req, res, next) => {
       score: req.body.score,
       startDate: req.body.startDate,
       endDate: req.body.endDate,
-      UserId: req.body.id,
+      UserId: req.decoded.id,
     })
     return res.json({'ok' : true, 'message' : 'Create post success', data : { goal : goal }});
-  } catch (e) {
+  } catch (error) {
     console.error(error);
     return next(error);
   }
@@ -24,16 +24,14 @@ router.post('/', verifyToken, async (req, res, next) => {
 
 router.get('/', verifyToken, async (req, res, next) => {
   try {
-    const goals = await Goal.findAll({
-      include: {
-        model: User,
-        attributes: ['id'],
-      },
-      order: [['createdAt', 'DESC']],
+    const user = await User.findOne({
+      where: { id: req.decoded.id }
     })
+    const goals = await user.getGoals();
     return res.json({'ok' : true, 'message' : 'Create post success', data : { goals : goals }});
-  } catch (e) {
-
+  } catch (error) {
+    console.error(error);
+    return next(error);
   }
 });
 
