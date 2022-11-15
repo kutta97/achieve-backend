@@ -31,6 +31,7 @@ router.get('/', verifyToken, async (req, res, next) => {
       },
       order: [['createdAt', 'DESC']],
     })
+    return res.json({'ok' : true, 'message' : 'Create post success', data : { goal : goals }});
   } catch (e) {
 
   }
