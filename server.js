@@ -17,7 +17,7 @@ const app = express();
 passportConfig();
 
 const corsOptions = {
-  origin: "http://localhost:3000",
+  origin: ["http://localhost:3000", "https://achieve-frontend-2022.vercel.app"],
   Credential: true,
 };
 
