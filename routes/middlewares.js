@@ -25,11 +25,10 @@ exports.verifyToken = (req, res, next) => {
         ok: false,
         message: 'Token Expired'
       })
-    } else {
-      return res.status(401).json({
-        ok: false,
-        message: 'Invalid Token'
-      })
     }
+    return res.status(401).json({
+      ok: false,
+      message: 'Invalid Token'
+    })
   }
 }

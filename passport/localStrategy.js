@@ -13,10 +13,12 @@ module.exports = () => {
       const exUser = await User.findOne({ where: { email } });
       if (!exUser) {
         done(null, false, { message: 'You are not a member' });
+        return;
       }
       const result = await bcrypt.compare(password, exUser.password);
       if (!result) {
         done(null, false, { message: 'Wrong password' });
+        return;
       }
       done(null, exUser);
     } catch (error) {
