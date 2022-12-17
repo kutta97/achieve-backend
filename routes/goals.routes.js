@@ -8,11 +8,11 @@ const router = express.Router();
 router.post('/', verifyToken, async (req, res, next) => {
   try {
     const goal = await Goal.create({
-      examTitle: req.body.examTitle,
-      scoreType: req.body.scoreType,
-      score: req.body.score,
-      startDate: req.body.startDate,
-      endDate: req.body.endDate,
+      examTitle: reqBody.examTitle,
+      scoreType: reqBody.scoreType,
+      score: reqBody.score,
+      startDate: reqBody.startDate,
+      endDate: reqBody.endDate,
       UserId: req.decoded.id,
     })
     return res.json({'ok' : true, 'message' : 'Create post success', data : { goal : goal }});
@@ -28,7 +28,7 @@ router.get('/', verifyToken, async (req, res, next) => {
       where: { id: req.decoded.id }
     })
     const goals = await user.getGoals();
-    return res.json({'ok' : true, 'message' : 'Create post success', data : { goals : goals }});
+    return res.json({'ok' : true, 'message' : 'Get post success', data : { goals : goals }});
   } catch (error) {
     console.error(error);
     return next(error);
