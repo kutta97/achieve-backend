@@ -11,6 +11,7 @@ const cors = require("cors");
 dotenv.config();
 
 const authRouter = require('./routes/auth.routes');
+const sidebarRouter = require('./routes/sidebar.routes');
 const goalsRouter = require('./routes/goals.routes');
 const overviewRouter = require('./routes/overview.routes');
 const { sequelize } = require('./models');
@@ -57,6 +58,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/auth', authRouter);
+app.use('/sidebar', sidebarRouter)
 app.use('/goals', goalsRouter);
 app.use('/overview', overviewRouter);
 

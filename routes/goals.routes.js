@@ -3,6 +3,7 @@ const express = require('express');
 const { Goal, Habit, HabitTracker } = require('../models');
 const { verifyToken } = require('./middlewares');
 const { getDateString, getDday, getTodayDate } = require('../utils/date')
+const { getGoalTitle } = require('../utils/goal');
 
 const { Op } = require("sequelize");
 
@@ -25,18 +26,6 @@ router.post('/', verifyToken, async (req, res, next) => {
     return next(error);
   }
 });
-
-const getGoalTitle = (goalTitle, scoreType, score) => {
-  if (scoreType === 'NUMBER') {
-    return `${goalTitle} 시험 ${score}점 이상 받는다!`
-  }
-  if (scoreType === 'LETTER') {
-    return `${goalTitle} 시험 ${score} 이상 받는다!`
-  }
-  if (scoreType === 'PERCENTAGE') {
-    return `${goalTitle} 시험 ${score}% 이상 받는다!`
-  }
-}
 
 const isTodayHabitDone = async (habitId) => {
   const today = getTodayDate();
