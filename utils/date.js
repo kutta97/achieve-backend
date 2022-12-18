@@ -1,5 +1,15 @@
 var exports = module.exports = {};
 
+exports.getTodayDate = () => {
+  const dateObject = new Date();
+  const y = dateObject.getFullYear();
+  const m = dateObject.getMonth();
+  const d = dateObject.getDate()
+
+  const today = new Date(y, m, d);
+  return today;
+}
+
 exports.getDateString = (date) => {
   const dateObject = new Date(date);
   const y = dateObject.getFullYear();
