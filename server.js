@@ -8,6 +8,7 @@ const cors = require("cors");
 dotenv.config();
 
 const authRouter = require('./routes/auth.routes');
+const goalsRouter = require('./routes/goals.routes');
 const overviewRouter = require('./routes/overview.routes');
 const { sequelize } = require('./models');
 const passportConfig = require('./passport');
@@ -16,7 +17,7 @@ const app = express();
 passportConfig();
 
 const corsOptions = {
-  origin: "http://localhost:3000",
+  origin: ["http://localhost:3000", "https://achieve-frontend-2022.vercel.app"],
   Credential: true,
 };
 
@@ -49,6 +50,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/auth', authRouter);
+app.use('/goals', goalsRouter);
 app.use('/overview', overviewRouter);
 
 app.use((req, res, next) => {
