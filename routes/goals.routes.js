@@ -24,6 +24,18 @@ router.post('/', verifyToken, async (req, res, next) => {
   }
 });
 
+const getGoalTitle = (goalTitle, scoreType, score) => {
+  if (scoreType === 'NUMBER') {
+    return `${goalTitle} 시험 ${score}점 이상 받는다!`
+  }
+  if (scoreType === 'LETTER') {
+    return `${goalTitle} 시험 ${score} 이상 받는다!`
+  }
+  if (scoreType === 'PERCENTAGE') {
+    return `${goalTitle} 시험 ${score}% 이상 받는다!`
+  }
+}
+
 const getHabitTrackers = async (goalId) => {
   const habits = await Habit.findAll({
     where: {
@@ -55,7 +67,7 @@ router.get('/', verifyToken, async (req, res, next) => {
         ['createdAt', 'DESC']
       ],
       attributes: [
-        'id', 'examTitle', 'startDate', 'endDate', 'status', 'GroupId'
+        'id', 'examTitle', 'scoreType', 'score', 'startDate', 'endDate', 'status', 'GroupId'
       ],
       offset: pageNum * pageSize,
       limit: pageSize,
@@ -65,15 +77,16 @@ router.get('/', verifyToken, async (req, res, next) => {
       const habitTrackers = await getHabitTrackers(goal.id)
       return ({
         goalId: goal.id,
-        title: goal.examTitle,
+        title: getGoalTitle(goal.examTitle, goal.scoreType, goal.score),
         period: `${getDateString(goal.startDate)} ~ ${getDateString(goal.endDate)}`,
         dDay: `D${getDday(goal.endDate)}`,
+        goalStatus: goal.status,
         isGroupGoal: goal.GroupId ? true : false,
         habitTrackers: habitTrackers,
       })
     }))
 
-    return res.json({'ok' : true, 'message' : 'Get goal list success', data : { goals : data }});
+    return res.json({'ok' : true, 'message' : 'Get goal list success',data : { content : data, pageNumber: pageNum, pageSize: pageSize }});
   } catch (error) {
     console.error(error);
     return next(error);
