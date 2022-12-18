@@ -104,9 +104,13 @@ router.put('/:id', verifyToken, async (req, res, next) => {
   try {
     const reqBody = req.body.goal
     const goalStatus = reqBody.goalStatus
-    console.log('edit goal api started --------')
     if (goalStatus) {
-      const completedGoal = await Goal.update({ status: reqBody.goalStatus } , {
+      const today = new Date();
+      const completedGoal = await Goal.update({ 
+        status: reqBody.goalStatus,
+        achieveDate: today
+      },
+      {
         where: {
           id: req.params.id 
         }
