@@ -3,6 +3,7 @@ const express = require('express');
 const { Goal, Habit, HabitTracker } = require('../models');
 const { verifyToken } = require('./middlewares');
 const { getDateString, getDday, getTodayDate } = require('../utils/date')
+const { getGoalTitle } = require('../utils/goal');
 
 const { Op } = require("sequelize");
 
@@ -25,18 +26,6 @@ router.post('/', verifyToken, async (req, res, next) => {
     return next(error);
   }
 });
-
-const getGoalTitle = (goalTitle, scoreType, score) => {
-  if (scoreType === 'NUMBER') {
-    return `${goalTitle} 시험 ${score}점 이상 받는다!`
-  }
-  if (scoreType === 'LETTER') {
-    return `${goalTitle} 시험 ${score} 이상 받는다!`
-  }
-  if (scoreType === 'PERCENTAGE') {
-    return `${goalTitle} 시험 ${score}% 이상 받는다!`
-  }
-}
 
 const isTodayHabitDone = async (habitId) => {
   const today = getTodayDate();
@@ -105,6 +94,38 @@ router.get('/', verifyToken, async (req, res, next) => {
     }))
 
     return res.json({'ok' : true, 'message' : 'Get goal list success',data : { content : data, pageNumber: pageNum, pageSize: pageSize }});
+  } catch (error) {
+    console.error(error);
+    return next(error);
+  }
+});
+
+router.put('/:id', verifyToken, async (req, res, next) => {
+  try {
+    const reqBody = req.body.goal
+    const goalStatus = reqBody.goalStatus
+    console.log('edit goal api started --------')
+    if (goalStatus) {
+      const completedGoal = await Goal.update({ status: reqBody.goalStatus } , {
+        where: {
+          id: req.params.id 
+        }
+      })
+      return res.json({'ok' : true, 'message' : 'Complete goal success', data : { goal : completedGoal }});
+    }
+    const goal = await Goal.update({ 
+        examTitle: reqBody.examTitle,
+        scoreType: reqBody.scoreType,
+        score: reqBody.score,
+        startDate: reqBody.startDate,
+        endDate: reqBody.endDate,
+     },
+     {
+      where: {
+        id: req.params.id 
+      }
+    })
+    return res.json({'ok' : true, 'message' : 'Edit goal success', data : { goal : goal }});
   } catch (error) {
     console.error(error);
     return next(error);
