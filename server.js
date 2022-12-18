@@ -1,3 +1,6 @@
+const fs = require('fs');
+const http = require('http');
+const https = require('https')
 const express = require('express');
 const path = require('path')
 const passport = require('passport')
@@ -22,6 +25,10 @@ const corsOptions = {
 };
 
 app.set('port', process.env.PORT || 8080);
+app.set('http', 80);
+app.set('https', 443);
+
+console.log(`NODE ENV : ${process.env.NODE_ENV}`)
 
 sequelize.sync({ force: false })
   .then(() => {
@@ -63,8 +70,33 @@ app.use((err, req, res, next) => {
   res.locals.message = err.message;
   res.locals.error = process.env.NODE_ENV !== 'production' ? err : {};
   res.status(err.status || 500);
-})
-
-app.listen(app.get('port'), () => {
-  console.log(`Server is running on port ${app.get('port')}.`);
 });
+
+if (process.env.NODE_ENV === 'development') {
+  app.listen(app.get('port'), () => {
+    console.log(`Server is running on port ${app.get('port')}.`);
+  });
+}
+
+if (process.env.NODE_ENV === 'production') {
+  const privateKey = fs.readFileSync(process.env.PRIVATE_KEY)
+  const certificate = fs.readFileSync(process.env.CERTIFICATE)
+  const chain = fs.readFileSync(process.env.CHAIN)
+
+  const credentials = {
+    key: privateKey,
+    cert: certificate,
+    ca: chain,
+  }
+
+  const httpServer = http.createServer(app)
+  const httpsSserver = https.createServer(credentials, app)
+
+  httpServer.listen(app.get('http'), () => {
+    console.log(`Server is running on port ${app.get('http')}.`);
+  });
+
+  httpsSserver.listen(app.get('https'), () => {
+    console.log(`Server is running on port ${app.get('https')}.`);
+  });
+}
