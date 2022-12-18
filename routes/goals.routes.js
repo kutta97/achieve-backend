@@ -65,6 +65,12 @@ router.get('/', verifyToken, async (req, res, next) => {
   try {
     const pageNum = Number(req.query.pageNumber);
     const pageSize = Number(req.query.pageSize)
+
+    const goalCount = await Goal.count({
+      where: {
+        UserId: req.decoded.id
+      }
+    })
     
     const goals = await Goal.findAll({
       where: {
@@ -93,7 +99,7 @@ router.get('/', verifyToken, async (req, res, next) => {
       })
     }))
 
-    return res.json({'ok' : true, 'message' : 'Get goal list success',data : { content : data, pageNumber: pageNum, pageSize: pageSize }});
+    return res.json({'ok' : true, 'message' : 'Get goal list success',data : { content : data, pageNumber: pageNum, pageSize: pageSize, totalItem: goalCount }});
   } catch (error) {
     console.error(error);
     return next(error);
