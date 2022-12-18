@@ -100,6 +100,38 @@ router.get('/', verifyToken, async (req, res, next) => {
   }
 });
 
+router.put('/:id', verifyToken, async (req, res, next) => {
+  try {
+    const reqBody = req.body.goal
+    const goalStatus = reqBody.goalStatus
+    console.log('edit goal api started --------')
+    if (goalStatus) {
+      const completedGoal = await Goal.update({ status: reqBody.goalStatus } , {
+        where: {
+          id: req.params.id 
+        }
+      })
+      return res.json({'ok' : true, 'message' : 'Complete goal success', data : { goal : completedGoal }});
+    }
+    const goal = await Goal.update({ 
+        examTitle: reqBody.examTitle,
+        scoreType: reqBody.scoreType,
+        score: reqBody.score,
+        startDate: reqBody.startDate,
+        endDate: reqBody.endDate,
+     },
+     {
+      where: {
+        id: req.params.id 
+      }
+    })
+    return res.json({'ok' : true, 'message' : 'Edit goal success', data : { goal : goal }});
+  } catch (error) {
+    console.error(error);
+    return next(error);
+  }
+});
+
 router.get('/:id/habits', verifyToken, async (req, res, next) => {
   try {
     const habitTrackers = await getHabitTrackers(req.params.id)
