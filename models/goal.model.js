@@ -43,5 +43,6 @@ module.exports = class Goal extends Sequelize.Model {
   static associate(db) {
     this.belongsTo(db.User);
     this.belongsTo(db.Group);
+    this.hasMany(db.Habit, { onDelete: 'cascade' })
   }
 };

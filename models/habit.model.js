@@ -21,6 +21,6 @@ module.exports = class Habit extends Sequelize.Model {
 
   static associate(db) {
     this.belongsTo(db.Goal);
-    this.hasMany(db.HabitTracker);
+    this.hasMany(db.HabitTracker, { onDelete: 'cascade' });
   }
 };
