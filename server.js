@@ -15,6 +15,7 @@ const sidebarRouter = require('./routes/sidebar.routes');
 const overviewRouter = require('./routes/overview.routes');
 const goalsRouter = require('./routes/goals.routes');
 const friendsRouter = require('./routes/friends.routes');
+const groupsRouter = require('./routes/groups.routes');
 const { sequelize } = require('./models');
 const passportConfig = require('./passport');
 
@@ -63,6 +64,7 @@ app.use('/sidebar', sidebarRouter)
 app.use('/overview', overviewRouter);
 app.use('/goals', goalsRouter);
 app.use('/friends', friendsRouter);
+app.use('/groups', groupsRouter);
 
 app.use((req, res, next) => {
   const error =  new Error(`${req.method} ${req.url} router not found.`);
