@@ -9,64 +9,116 @@ const { Op } = require("sequelize");
 
 const router = express.Router();
 
+const getRequestedFriends = async (userId) => {
+  const requestfriends = await User.findOne({
+    where: {
+      id: userId
+    },
+    attributes: [],
+    include: [{
+      model: User,
+      attributes: [ 'id', 'name', 'description', 'profileImageURL' ],
+      as: 'Request'
+    }],
+  })
+  // 나에게 친구 요청을 받은 유저 리스트
+  return requestfriends.Request.map((it) => ({
+    friendId: it.id,
+    name: it.name,
+    imgSrc: it.profileImageURL,
+    description: it.description,
+  }))
+}
+
+const getAcceptedFriends = async (userId) => {
+  const acceptedfriends = await User.findOne({
+    where: {
+      id: userId
+    },
+    attributes: [],
+    include: [{
+      model: User,
+      attributes: [ 'id', 'name', 'description', 'profileImageURL' ],
+      as: 'Accept',
+    }],
+  })
+  // 내가 친구 요청을 보낸 유저 리스트
+  return acceptedfriends.Accept.map((it) => ({
+    friendId: it.id,
+    name: it.name,
+    imgSrc: it.profileImageURL,
+    description: it.description,
+  }))
+}
+
 router.get('/', verifyToken, async (req, res, next) => {
   try {
     const pageNum = Number(req.query.pageNumber);
     const pageSize = Number(req.query.pageSize)
 
-    const requestfriends = await User.findOne({
-      where: {
-        id: req.decoded.id
-      },
-      attributes: [],
-      include: [{
-        model: User,
-        attributes: [ 'id' ],
-        as: 'Request'
-      }],
+    const requests = await getRequestedFriends(req.decoded.id)
+    const accepts = await getAcceptedFriends(req.decoded.id)
+
+    const friends = requests.filter((request) => {
+      return (accepts.filter((accept) => request.friendId === accept.friendId)).length > 0
     })
 
-    const acceptedfriends = await User.findOne({
-      where: {
-        id: req.decoded.id
-      },
-      attributes: [],
-      include: [{
-        model: User,
-        attributes: [ 'id' ],
-        as: 'Accept',
-      }],
-    })
-
-    // 나에게 친구 요청을 받은 유저 아이디
-    const Request = requestfriends.Request.map((it) => {
-      return it.id
-    })
-
-    // 내가 친구 요청을 보낸 유저 아이디
-    const Accept = acceptedfriends.Accept.map((it) => {
-      return it.id
-    })
-
-    return res.json({'ok' : true, 'message' : 'Get goal list success',data : { content : acceptedfriends, pageNumber: pageNum, pageSize: pageSize, totalItem: 0 }});
+    return res.json({
+      'ok' : true,
+      'message' : 'Get friend list success' ,
+      data : {
+        content : friends,
+        pageNumber: pageNum,
+        pageSize: pageSize,
+        totalItem: friends.length
+      }
+    });
   } catch (error) {
     console.error(error);
     return next(error);
   }
 });
 
-router.post('/request/:id', verifyToken, async (req, res, next) => {
-  try {
-  
-    const user = await User.findOne({where: { id: req.params.id }})
+router.get('/request', verifyToken, async (req, res, next) => {
+  try { 
+    const pageNum = Number(req.query.pageNumber);
+    const pageSize = Number(req.query.pageSize)
 
-    console.log('user', user)
+    const requests = await getRequestedFriends(req.decoded.id)
+    const accepts = await getAcceptedFriends(req.decoded.id)
+
+    const invites = requests.filter((request) => {
+      return (accepts.filter((accept) => request.friendId === accept.friendId)).length === 0
+    })
+
+    return res.json({
+      'ok' : true,
+      'message' : 'Get friend request list success' ,
+      data : {
+        content : invites,
+        pageNumber: pageNum,
+        pageSize: pageSize,
+        totalItem: invites.length
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    return next(error);
+  }
+});
+
+router.post('/request', verifyToken, async (req, res, next) => {
+  try { 
+    const email = req.body.email
+    const user = await User.findOne({where: { email: email }})
 
     if (!user) {
       return res.json({'ok' : false, 'message' : 'Not Existing User'});
     }
-
-    await user.addRequest(req.decoded.id, )
+     if (user.id === req.decoded.id) {
+      return res.json({'ok' : false, 'message' : 'Cannot friend request yourself '});
+    }
+    await user.addRequest(req.decoded.id)
     return res.json({'ok' : true, 'message' : 'Friend rquest success'});
   } catch (error) {
     console.error(error);
@@ -75,18 +127,20 @@ router.post('/request/:id', verifyToken, async (req, res, next) => {
 });
 
 router.post('/accept/:id', verifyToken, async (req, res, next) => {
-  try {
-  
-    const user = await User.findOne({where: { id: req.params.id }})
-
-    console.log('user', user)
+  try {  
+    const accept = req.body.accept
+    const user = await User.findOne({where: { id: req.decoded.id }})
 
     if (!user) {
       return res.json({'ok' : false, 'message' : 'Not Existing User'});
     }
 
-    await user.addRequest(req.decoded.id, )
-    return res.json({'ok' : true, 'message' : 'Friend rquest success'});
+    if (!accept) {
+      await user.removeRequest(req.params.id)
+      return res.json({'ok' : true, 'message' : 'Reject friend request success'});
+    }
+    await user.addAccept(req.params.id)
+    return res.json({'ok' : true, 'message' : 'Accept Friend request success'});
   } catch (error) {
     console.error(error);
     return next(error);
