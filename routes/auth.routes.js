@@ -8,7 +8,7 @@ const User = require('../models/user.model');
 const router = express.Router();
 
 router.post('/signup', async (req, res, next) => {
-  const { email, name, description, password } = req.body;
+  const { email, name, image, description, password } = req.body;
   try {
     const exUser = await User.findOne({ where: { email } });
     if (exUser) {
@@ -19,6 +19,7 @@ router.post('/signup', async (req, res, next) => {
       email,
       name,
       description,
+      profileImageURL: image,
       password: hash,
     });
     return res.json({'ok' : true, 'message' : 'Sign up success'})
