@@ -1,11 +1,7 @@
 const express = require('express');
 
-const { User, Goal } = require('../models');
+const { User } = require('../models');
 const { verifyToken } = require('./middlewares');
-const { getDateString, getDday } = require('../utils/date')
-const { getGoalTitle } = require('../utils/goal');
-
-const { Op } = require("sequelize");
 
 const router = express.Router();
 
